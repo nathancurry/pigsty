@@ -208,7 +208,14 @@ class VulnNode(DictNode):
 
 class StigNode:
     """
-    Node representing the actual STIG
+    Node containing STIG data.
+
+    Args:
+        stig (ET.Element): STIG node
+
+    Attributes:
+        info (StigInfoNode): STIG_INFO node
+        vuln_nodes (dict[str, VulnNode]): VULN nodes
     """
 
     def __init__(self, stig: ET.Element):
@@ -223,15 +230,15 @@ class StigNode:
 
     @property
     def stigid(self) -> str:
-        return self.info["stigid"]
+        return self.info.get("stigid")
 
     @property
     def version(self) -> str:
-        return self.info["version"]
+        return self.info.get("version")
 
     @property
     def releaseinfo(self) -> str:
-        return self.info["releaseinfo"]
+        return self.info.get("releaseinfo")
 
 
 class Checklist:
@@ -242,8 +249,12 @@ class Checklist:
         file (Path): Path to checklist file
         tree (ET.ElementTree): ElementTree object
         root (ET.Element): Root element
-        asset (ET.Element): Asset element
-        stigs (list[ET.Element]): List of stig elements in file
+        asset (AssetNode): Asset element
+        stigs (list[StigNode]): List of STIG elements in file
+
+    Methods:
+        load(self): Load checklist XML data from file
+        as_dict(self) -> dict: Return a summary of checklist data as a dictionary
     """
 
     def __init__(self, file: str, autoload: bool = True):
