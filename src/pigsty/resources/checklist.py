@@ -6,7 +6,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 
-class DictNode():
+class DictNode:
     """
     Interface for dictionary node.
     """
@@ -31,9 +31,10 @@ class DictNode():
             KeyError: If key not found
         """
         try:
-            return self.node.find(f"{self._prefix}{key}{self._suffix}").text
+            value = self.node.find(f"{self._prefix}{key}{self._suffix}")
         except AttributeError as exc:
             raise KeyError(f"{key} not found in {self.node.tag}") from exc
+        return None if value is None else value.text
 
     def set(self, key: str, value: str):
         """
@@ -48,7 +49,9 @@ class DictNode():
             KeyError: If key not found
         """
         if self.immutable:
-            raise PermissionError(f"Node is write protected. Cannot set {key} to {value}")
+            raise PermissionError(
+                f"Node is write protected. Cannot set {key} to {value}"
+            )
         try:
             self.node.find(f"{self._prefix}{key}{self._suffix}").text = value
         except AttributeError as exc:
@@ -79,7 +82,6 @@ class DictNode():
         return {x[0]: x[1] for x in self.items()}
 
 
-
 class AssetNode(DictNode):
     """
     Interface for target asset node.
@@ -90,6 +92,7 @@ class AssetNode(DictNode):
         suffix: str = ""
         immutable: bool = False
         super().__init__(node, prefix, suffix, immutable)
+
 
 class StigInfoNode(DictNode):
     """
@@ -283,7 +286,7 @@ class Checklist:
                     },
                 }
                 for stig in self.stigs
-                ],
+            ],
         }
 
     def load(self):
@@ -327,7 +330,9 @@ class Checklist:
             output_file.parent.mkdir(parents=True)
         if output_file.exists():
             if not force:
-                raise FileExistsError(f"{output_file} already exists. Pass 'force=True' to overwrite.")
+                raise FileExistsError(
+                    f"{output_file} already exists. Pass 'force=True' to overwrite."
+                )
             else:
                 output_file.unlink()
         self.tree.write(output_file)
