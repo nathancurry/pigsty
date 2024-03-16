@@ -1,6 +1,6 @@
 from pathlib import Path
 from xml.etree import ElementTree as ET
-
+import re
 import pytest
 from pigsty.resources.checklist import AssetNode, Checklist, StigNode
 
@@ -13,9 +13,7 @@ class TestChecklist:
     rhel9_ckl = Checklist(rhel9_file, autoload=False)
     bad_ckl = Checklist(bad_file, autoload=False)
 
-    @pytest.mark.parametrize(
-        "element", [rhel9_ckl.tree, rhel9_ckl.root, rhel9_ckl.asset]
-    )
+    @pytest.mark.parametrize("element", [rhel9_ckl.tree, rhel9_ckl.root, rhel9_ckl.asset])
     def test_checklist_no_load(self, element):
         assert element is None
 
@@ -37,7 +35,22 @@ class TestChecklist:
         assert self.rhel9_ckl.as_dict()
 
     @pytest.mark.parametrize(
-        "key,value", [("ROLE", "None"), ("HOST_IP", None), ("ASSET_TYPE", "Computing")]
+        "key,value",
+        [
+            ("ROLE", "None"),
+            ("ASSET_TYPE", "Computing"),
+            ("MARKING", "CUI"),
+            ("HOST_NAME", None),
+            ("HOST_IP", None),
+            ("HOST_MAC", None),
+            ("HOST_FQDN", None),
+            ("TARGET_COMMENT", None),
+            ("TECH_AREA", None),
+            ("TARGET_KEY", "5551"),
+            ("WEB_OR_DATABASE", "false"),
+            ("WEB_DB_SITE", None),
+            ("WEB_DB_INSTANCE", None),
+        ]
     )
     def test_asset(self, key, value):
         self.rhel9_ckl.load()
@@ -76,6 +89,54 @@ class TestChecklist:
         assert len(info.items()) > 0
         assert info.get(key) == value
 
-    def test_vulnerabilities(self):
+    def test_vuln_nodes(self):
         self.rhel9_ckl.load()
-        assert self.rhel9_ckl.stigs[0].vuln_nodes
+        vulns = self.rhel9_ckl.stigs[0].vuln_nodes
+        assert len(vulns) > 0
+        assert isinstance(vulns, dict)
+        for k, v in vulns.items():
+            assert k == v.vuln_num
+            assert v.status in ["NotAFinding", "Open", "Not_Reviewed", "Not_Applied"]
+            assert v.finding_details is None
+            assert v.comments is None
+            assert v.severity_override is None
+            assert v.severity_justification is None
+
+    @pytest.mark.parametrize(
+        "key",
+        [
+            "Vuln_Num",
+            "Severity",
+            "Group_Title",
+            "Rule_ID",
+            "Rule_Ver",
+            "Rule_Title",
+            "Vuln_Discuss",
+            "IA_Controls",
+            "Check_Content",
+            "Fix_Text",
+            "False_Positives",
+            "False_Negatives",
+            "Documentable",
+            "Mitigations",
+            "Potential_Impact",
+            "Third_Party_Tools",
+            "Mitigation_Control",
+            "Responsibility",
+            "Security_Override_Guidance",
+            "Check_Content_Ref",
+            "Weight",
+            "Class",
+            "STIGRef",
+            "TargetKey",
+            "STIG_UUID",
+            "LEGACY_ID",
+            "CCI_REF",
+        ]
+    )
+    def test_vuln_node_keys(self, key):
+        self.rhel9_ckl.load()
+        vulns = self.rhel9_ckl.stigs[0].vuln_nodes
+        assert len(vulns) > 0
+        for v in vulns.values():
+            assert any((v.get(key) is None, isinstance(v.get(key), (str))))
