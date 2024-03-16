@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 class TestChecklist:
-    rhel9_file = Path("./tests/files/checklists/rhel9.ckl")
+    rhel9_file = Path("./tests/files/checklists/U_RHEL_9_V1R1_STIG_SCAP_1-3_Benchmark.ckl")
     bad_file = Path("./tests/files/checklists/bad.ckl")
     rhel9_ckl = Checklist(rhel9_file, autoload=False)
     bad_ckl = Checklist(bad_file, autoload=False)
