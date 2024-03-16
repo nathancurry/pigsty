@@ -64,7 +64,7 @@ class OpenSCAPRuleResult:
         self.vid: str
         self.time: datetime
         self.result: str
-        self.__datetime_format: str = "%Y-%m-%dT%H:%M:%S%z"
+        self._datetime_format: str = "%Y-%m-%dT%H:%M:%S%z"
         self.node = result_node
 
     @property
@@ -77,7 +77,7 @@ class OpenSCAPRuleResult:
 
     @property
     def time(self) -> datetime:
-        return datetime.strptime(self.node.get("time"), self.__datetime_format)
+        return datetime.strptime(self.node.get("time"), self._datetime_format)
 
     @property
     def severity(self) -> str:

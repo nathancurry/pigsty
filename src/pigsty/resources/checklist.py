@@ -13,8 +13,8 @@ class DictNode():
 
     def __init__(self, node: ET.Element, prefix: str, suffix: str, immutable: bool):
         self.node: ET.Element = node
-        self.__prefix: str = prefix
-        self.__suffix: str = suffix
+        self._prefix: str = prefix
+        self._suffix: str = suffix
         self.immutable: bool = immutable
 
     def get(self, key: str) -> str:
@@ -31,7 +31,7 @@ class DictNode():
             KeyError: If key not found
         """
         try:
-            return self.node.find(f"{self.__prefix}{key}{self.__suffix}").text
+            return self.node.find(f"{self._prefix}{key}{self._suffix}").text
         except AttributeError as exc:
             raise KeyError(f"{key} not found in {self.node.tag}") from exc
 
@@ -50,7 +50,7 @@ class DictNode():
         if self.immutable:
             raise PermissionError(f"Node is write protected. Cannot set {key} to {value}")
         try:
-            self.node.find(f"{self.__prefix}{key}{self.__suffix}").text = value
+            self.node.find(f"{self._prefix}{key}{self._suffix}").text = value
         except AttributeError as exc:
             raise KeyError(f"{key} not found in {self.node.tag}") from exc
 
@@ -156,7 +156,7 @@ class VulnNode(DictNode):
 
     @property
     def vuln_num(self) -> str:
-        return self.node.find(f"{self.__prefix}Vuln_Num{self.__suffix}").text
+        return self.node.find(f"{self._prefix}Vuln_Num{self._suffix}").text
 
     @property
     def status(self) -> str:
@@ -279,24 +279,27 @@ class Checklist:
         """
         Load checklist XML data from file.
         """
-        self.parse()
-        self.load_asset()
-        self.load_stigs()
+        self._parse()
+        self._load_asset()
+        self._load_stigs()
 
-    def parse(self):
+    def _parse(self):
         """
         Parse XML.
         """
-        self.tree = ET.parse(self.file)
-        self.root = self.tree.getroot()
+        try:
+            self.tree = ET.parse(self.file)
+            self.root = self.tree.getroot()
+        except ET.ParseError as exc:
+            raise exc
 
-    def load_asset(self):
+    def _load_asset(self):
         """
         Load asset data.
         """
         self.asset = AssetNode(self.root.find(".//ASSET"))
 
-    def load_stigs(self):
+    def _load_stigs(self):
         """
         Load stig data.
         """
