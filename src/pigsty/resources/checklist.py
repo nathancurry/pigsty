@@ -1,9 +1,8 @@
 """
-Module to provide dictionary-like interface to DISA checklist files produced by STIG Viewer 2.
+Interface to DISA checklist files produced by STIG Viewer 2.
 """
 
 from pathlib import Path
-from typing import Dict, List
 from xml.etree import ElementTree as ET
 
 
@@ -111,7 +110,7 @@ class StigInfoNode(DictNode):
         suffix: str = '"]/../SID_DATA'
         super().__init__(node, prefix, suffix, immutable)
 
-    def items(self) -> List[str]:
+    def items(self) -> list[str]:
         key = ".//SID_NAME"
         value = ".//SID_DATA"
         result = []
@@ -199,7 +198,7 @@ class VulnNode(DictNode):
     def severity_justification(self, value: str):
         self.node.find("SEVERITY_JUSTIFICATION").text = value
 
-    def items(self) -> List[str]:
+    def items(self) -> list[str]:
         key = ".//VULN_ATTRIBUTE"
         value = ".//ATTRIBUTE_DATA"
         return [
@@ -215,7 +214,7 @@ class StigNode:
     def __init__(self, stig: ET.Element):
         self.node: ET.Element = stig
         self.info: StigInfoNode = StigInfoNode(self.node.find(".//STIG_INFO"))
-        self.vuln_nodes: Dict[str, VulnNode] = {
+        self.vuln_nodes: dict[str, VulnNode] = {
             x.find(
                 './/STIG_DATA/VULN_ATTRIBUTE[.="Vuln_Num"]/../ATTRIBUTE_DATA'
             ).text: VulnNode(x)
@@ -244,14 +243,14 @@ class Checklist:
         tree (ET.ElementTree): ElementTree object
         root (ET.Element): Root element
         asset (ET.Element): Asset element
-        stigs (List[ET.Element]): List of stig elements in file
+        stigs (list[ET.Element]): List of stig elements in file
     """
 
     def __init__(self, file: str, autoload: bool = True):
         self.tree: ET.ElementTree = None
         self.root: ET.Element = None
-        self.asset: ET.Element = None
-        self.stigs: List[ET.Element] = []
+        self.asset: AssetNode = None
+        self.stigs: list[StigNode] = []
         self.file: Path = Path(file)
         if autoload:
             self.load()

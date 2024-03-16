@@ -1,11 +1,10 @@
 """
-Placeholder
+Interface to OpenSCAP XCCDF results in STIG Viewer format
 """
 
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Set
 from xml.etree import ElementTree as ET
 
 NS: dict = {
@@ -134,7 +133,7 @@ class OpenSCAPRuleResult:
         }
 
 
-class OpenSCAPXccdfResult:
+class OpenSCAPSTIGViewerResult:
     """
     Interface to parse and retrieve results from an OpenSCAP XCCDF result file in STIG Viewer format.
 
@@ -158,7 +157,7 @@ class OpenSCAPXccdfResult:
     def __init__(self, file: str, autoload: bool = True):
         self.tree: ET.ElementTree = None
         self.root: ET.Element = None
-        self.rule_results: Dict[str, OpenSCAPRuleResult] = {}
+        self.rule_results: dict[str, OpenSCAPRuleResult] = {}
         self.file: Path = Path(file)
         if autoload:
             self.load()
@@ -197,7 +196,7 @@ class OpenSCAPXccdfResult:
         return self.root.find(".//xccdf:identity", NS).text
 
     @property
-    def target_addresses(self) -> Set[str]:
+    def target_addresses(self) -> set[str]:
         super = INVALID_IPV4.union(INVALID_IPV6, INVALID_HOSTNAME, INVALID_MAC)
         return {
             x.text
@@ -206,28 +205,28 @@ class OpenSCAPXccdfResult:
         }
 
     @property
-    def ipv4(self) -> Set[str]:
+    def ipv4(self) -> set[str]:
         query = './/xccdf:target-facts/xccdf:fact[@name="urn:xccdf:fact:asset:identifier:ipv4"]'
         return {
             x.text for x in self.root.findall(query, NS) if x.text not in INVALID_IPV4
         }
 
     @property
-    def ipv6(self) -> Set[str]:
+    def ipv6(self) -> set[str]:
         query = './/xccdf:target-facts/xccdffact[@name="urn:xccdf:fact:asset:identifier:ipv6"]'
         return {
             x.text for x in self.root.findall(query, NS) if x.text not in INVALID_IPV6
         }
 
     @property
-    def mac(self) -> Set[str]:
+    def mac(self) -> set[str]:
         query = './/xccdf:target-facts/xccdf:fact[@name="urn:xccdf:fact:asset:identifier:mac"]'
         return {
             x.text for x in self.root.findall(query, NS) if x.text not in INVALID_MAC
         }
 
     @property
-    def hostname(self) -> Set[str]:
+    def hostname(self) -> set[str]:
         query = './/xccdf:target-facts/xccdf:fact[@name="urn:xccdf:fact:asset:identifier:host_name"]'
         return {
             x.text
@@ -236,14 +235,14 @@ class OpenSCAPXccdfResult:
         }
 
     @property
-    def fqdn(self) -> Set[str]:
+    def fqdn(self) -> set[str]:
         query = './/xccdf:target-facts/xccdf:fact[@name="urn:xccdf:fact:asset:identifier:fqdn"]'
         return {x.text for x in self.root.findall(query, NS)}
 
     @property
-    def platform(self) -> Set[str]:
+    def platform(self) -> set[str]:
         return {x.get("idref") for x in self.root.findall(".//xccdf:platform", NS)}
 
     @property
-    def cpe(self) -> Set[str]:
+    def cpe(self) -> set[str]:
         return {x for x in self.platform if x.startswith("cpe:/o:")}
