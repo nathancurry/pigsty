@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools"]
+
+[project]
+name = "pigsty"
+version = "2024.03.16"
+description = "Library and CLI to simplify working with DISA STIG XML."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+keywords = ["DISA", "STIG", "XML", "checklist", "xccdf", "security", "compliance"]
+authors = [
+  {email = "dev@masv.cc"},
+  {name = "Nathan Curry"}
+]
+maintainers = [
+  {name = "Nathan Curry", email = "dev@masv.cc"}
+]
+classifiers = [
+  "Programming Language :: Python"
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+
+[project.urls]
+repository = "https://github.com/nathancurry/pigsty"
+
+[project.scripts]
+pigsty = "pigsty.__main__:main"
