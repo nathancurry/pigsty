@@ -1,6 +1,6 @@
 from pathlib import Path
 from xml.etree import ElementTree as ET
-import re
+
 import pytest
 from pigsty.resources.checklist import AssetNode, Checklist, StigNode
 
@@ -13,7 +13,9 @@ class TestChecklist:
     rhel9_ckl = Checklist(rhel9_file, autoload=False)
     bad_ckl = Checklist(bad_file, autoload=False)
 
-    @pytest.mark.parametrize("element", [rhel9_ckl.tree, rhel9_ckl.root, rhel9_ckl.asset])
+    @pytest.mark.parametrize(
+        "element", [rhel9_ckl.tree, rhel9_ckl.root, rhel9_ckl.asset]
+    )
     def test_checklist_no_load(self, element):
         assert element is None
 
@@ -50,7 +52,7 @@ class TestChecklist:
             ("WEB_OR_DATABASE", "false"),
             ("WEB_DB_SITE", None),
             ("WEB_DB_INSTANCE", None),
-        ]
+        ],
     )
     def test_asset(self, key, value):
         self.rhel9_ckl.load()
@@ -132,7 +134,7 @@ class TestChecklist:
             "STIG_UUID",
             "LEGACY_ID",
             "CCI_REF",
-        ]
+        ],
     )
     def test_vuln_node_keys(self, key):
         self.rhel9_ckl.load()
