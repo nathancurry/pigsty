@@ -2,7 +2,7 @@ import ipaddress
 import re
 from pathlib import Path
 
-from pigsty.resources.openscap import OpenSCAPSTIGViewerResult
+from pigsty.resources.openscap import OpenSCAPSTIGViewerResult, OpenSCAPRuleResult
 
 
 class TestOpenSCAP:
@@ -46,7 +46,9 @@ class TestOpenSCAP:
             == "root@localhost"
         )
 
-    # def test_rule_results(self):
-    #     r = OpenSCAPSTIGViewerResult(self.stigviewer)
-    #     assert r
-    #     assert all(isinstance(r, OpenSCAPRuleResult) for r in r.rule_results.values())
+    def test_rule_results(self):
+        r = OpenSCAPSTIGViewerResult(self.stigviewer)
+        assert r
+        assert all(isinstance(r, OpenSCAPRuleResult) for r in r.rule_results.values())
+        for k, v in r.rule_results.items():
+            assert k in v.rule_id
