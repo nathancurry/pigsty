@@ -197,11 +197,11 @@ class OpenSCAPSTIGViewerResult:
 
     @property
     def target_addresses(self) -> set[str]:
-        super = INVALID_IPV4.union(INVALID_IPV6, INVALID_HOSTNAME, INVALID_MAC)
+        all_invalid = INVALID_IPV4.union(INVALID_IPV6, INVALID_HOSTNAME, INVALID_MAC)
         return {
             x.text
             for x in self.root.findall(".//xccdf:target-address", NS)
-            if x.text not in super
+            if x.text not in all_invalid
         }
 
     @property
@@ -246,3 +246,9 @@ class OpenSCAPSTIGViewerResult:
     @property
     def cpe(self) -> set[str]:
         return {x for x in self.platform if x.startswith("cpe:/o:")}
+
+    @property
+    def set_value(self) -> dict[str, str]:
+        return {
+            x.get("idref"): x.text for x in self.root.findall(".//xccdf:set-value", NS)
+        }
